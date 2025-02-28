@@ -6,6 +6,8 @@
  *
  * Purpose:	Experimental Golang ticker using a go function
  *
+ * Note:	Tabstop = 4
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
@@ -34,28 +36,33 @@ import (
 )
 
 /*
- * Types
- */
-
-/*--------------------------------------------------*/
-
-type GlobalVarsType struct {
-	TheTicks	int
-}
-
-/*--------------------------------------------------*/
-
-/*
  * Global Consts
  */
 
 const secondsToRun = 6
 
-/*
- * Global Vars
+/******************************************************************************/
+
+/**
+ * Name:	tickMeOff
+ *
+ * @brief	a function that is executed/run periodically and outputs a number
+ *			of ticks (e.g., number of times it has been exected/run).
+ *
+ * @param	theTicksPtr		a pointer to an integer that stores
+ *							a count of ticks
+ *
  */
 
-var GlobalVars	GlobalVarsType
+func tickMeOff(theTicksPtr *int) {
+	if *theTicksPtr == 1 {
+		fmt.Println("tickMeOff(): Been ticked off 1 time!")
+	} else {
+		fmt.Printf("tickMeOff(): Been ticked off %d times!\n", *theTicksPtr)
+	}
+
+	*theTicksPtr++
+} /* tickMeOff */
 
 /******************************************************************************/
 
@@ -69,37 +76,29 @@ var GlobalVars	GlobalVarsType
  *
  */
 
-
-func tickMeOff() {
-	if GlobalVars.TheTicks == 1 {
-		fmt.Println("tickMeOff(): Been ticked off 1 time!")
-	} else {
-		fmt.Printf("tickMeOff(): Been ticked off %d times!\n", GlobalVars.TheTicks)
-	}
-
-	GlobalVars.TheTicks++
-} /* tickMeOff */
-
-/******************************************************************************/
-
 func myGoFunc(myTicker *time.Ticker, stopItNow chan bool) {
-	var err	error
+	var	(
+		err			error
+		theTicks	int
+	)
 
+	theTicks = 1
 	fmt.Println("myGoFunc():  Ready to be ticked off!!!")
 
 	for {
 		select {
 			case <-myTicker.C:
 				// call the func to be executed/run periodically
-				tickMeOff()
+				tickMeOff(&theTicks)
 
 			case <-stopItNow:
 				fmt.Println("myGoFunc(): Exiting.")
 
 				// there may be a race condition between main exiting
 				// and clearing stdout, so flush stdout
-				// *** while this should NOT produce an error, it does,
-				// at least on MacOS v12.7.4
+				// *** while this should NOT produce an error, it does
+				// sometimes, at least on MacOS v12.7.4. sometimes it
+				// does not work at all.
 				err = os.Stdout.Sync()
 				if err != nil {
 					fmt.Println("Error flushing stdout:", err)
@@ -117,7 +116,6 @@ func main() {
 		stopIt		chan bool
 	)
 
-	GlobalVars.TheTicks = 1
 	fmt.Println("main():  Get ready to be ticked off!!!")
 
 	// allocate the channel
