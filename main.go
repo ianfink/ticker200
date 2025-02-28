@@ -44,7 +44,8 @@ const secondsToRun = 6
 /**
  * Name:	tickMeOff
  *
- * @brief	a go function that receives a golang ticker channel
+ * @brief	a function that is executed/run periodically and outputs a number
+ *			of ticks (e.g., number of times it has been exected/run).
  *
  * @param	theTicksPtr		a pointer to an integer that stores
  *							a count of ticks
