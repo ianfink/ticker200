@@ -34,28 +34,10 @@ import (
 )
 
 /*
- * Types
- */
-
-/*--------------------------------------------------*/
-
-type GlobalVarsType struct {
-	TheTicks	int
-}
-
-/*--------------------------------------------------*/
-
-/*
  * Global Consts
  */
 
 const secondsToRun = 6
-
-/*
- * Global Vars
- */
-
-var GlobalVars	GlobalVarsType
 
 /******************************************************************************/
 
@@ -70,36 +52,41 @@ var GlobalVars	GlobalVarsType
  */
 
 
-func tickMeOff() {
-	if GlobalVars.TheTicks == 1 {
+func tickMeOff(theTicksPtr *int) {
+	if *theTicksPtr == 1 {
 		fmt.Println("tickMeOff(): Been ticked off 1 time!")
 	} else {
-		fmt.Printf("tickMeOff(): Been ticked off %d times!\n", GlobalVars.TheTicks)
+		fmt.Printf("tickMeOff(): Been ticked off %d times!\n", *theTicksPtr)
 	}
 
-	GlobalVars.TheTicks++
+	*theTicksPtr++
 } /* tickMeOff */
 
 /******************************************************************************/
 
 func myGoFunc(myTicker *time.Ticker, stopItNow chan bool) {
-	var err	error
+	var	(
+		err			error
+		theTicks	int
+	)
 
+	theTicks = 1
 	fmt.Println("myGoFunc():  Ready to be ticked off!!!")
 
 	for {
 		select {
 			case <-myTicker.C:
 				// call the func to be executed/run periodically
-				tickMeOff()
+				tickMeOff(&theTicks)
 
 			case <-stopItNow:
 				fmt.Println("myGoFunc(): Exiting.")
 
 				// there may be a race condition between main exiting
 				// and clearing stdout, so flush stdout
-				// *** while this should NOT produce an error, it does,
-				// at least on MacOS v12.7.4
+				// *** while this should NOT produce an error, it does
+				// sometimes, at least on MacOS v12.7.4. sometimes it
+				// does not work at all.
 				err = os.Stdout.Sync()
 				if err != nil {
 					fmt.Println("Error flushing stdout:", err)
@@ -117,7 +104,6 @@ func main() {
 		stopIt		chan bool
 	)
 
-	GlobalVars.TheTicks = 1
 	fmt.Println("main():  Get ready to be ticked off!!!")
 
 	// allocate the channel
