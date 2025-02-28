@@ -42,15 +42,14 @@ const secondsToRun = 6
 /******************************************************************************/
 
 /**
- * Name:	myGoFunc
+ * Name:	tickMeOff
  *
  * @brief	a go function that receives a golang ticker channel
  *
- * @param	myTicker		a pointer to a time.Ticker instance
- * @param	stopItNow		a channel that communicates boolean values
+ * @param	theTicksPtr		a pointer to an integer that stores
+ *							a count of ticks
  *
  */
-
 
 func tickMeOff(theTicksPtr *int) {
 	if *theTicksPtr == 1 {
@@ -63,6 +62,16 @@ func tickMeOff(theTicksPtr *int) {
 } /* tickMeOff */
 
 /******************************************************************************/
+
+/**
+ * Name:	myGoFunc
+ *
+ * @brief	a go function that receives a golang ticker channel
+ *
+ * @param	myTicker		a pointer to a time.Ticker instance
+ * @param	stopItNow		a channel that communicates boolean values
+ *
+ */
 
 func myGoFunc(myTicker *time.Ticker, stopItNow chan bool) {
 	var	(
